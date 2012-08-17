@@ -50,14 +50,14 @@ sub handler {
 	$image->Read($file_path);
 	$height = $width*$image->Get('height')/$image->Get('width');
 
-   $image->Set(Gravity => 'Center');
-   $image->Set(background => '#fff');
+	$image->Set(Gravity => 'Center');
+	$image->Set(background => '#fff');
 
 
 	if($width != 0){
 		$image->Scale(width=>$width, height=>$height);
 	}
-	$image->Crop(geometry => $size);#width=>$width, height=>$height);
+	$image->Crop(geometry => $size);
 	$image->Write($dest_file);
 	$r->sendfile($dest_file);
 	return OK;
