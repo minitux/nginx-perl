@@ -61,6 +61,9 @@ sub handler {
 	$image->Strip; 
 	$image->Write($dest_file);
 	$r->sendfile($dest_file);
+	
+	undef $image;
+	
 	return OK;
 }
 1;
