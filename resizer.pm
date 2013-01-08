@@ -58,6 +58,7 @@ sub handler {
 		$image->Scale(width=>$width, height=>$height);
 	}
 	$image->Crop(geometry => $size);
+	$image->Strip; 
 	$image->Write($dest_file);
 	$r->sendfile($dest_file);
 	return OK;
