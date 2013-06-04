@@ -17,17 +17,20 @@ sub handler {
 	my $uri=$r->uri;
 
 	# my images uri is like /images/widhth/height/name.extension 
+	# /i/ just resize 
+	# /d/ crop and resize 
 
 	my @splitted_uri = split ('\/', $uri);
 	my @splitted_filename = split ('\.', $splitted_uri[4]);
 
+	my $type_resize = $splitted_uri[1];
 	my $width = $splitted_uri[2]; 
 	my $height = $splitted_uri[3];
 	my $name = $splitted_filename[0];
 	my $ext = $splitted_filename[1];
 	my $file_path = "$base_dir$name.$ext";
 
-	my $dest_file = "$dest_dir${width}.${height}.$name.$ext";
+	my $dest_file = "$dest_dir${type_resize}.${width}.${height}.$name.$ext";
 
 	my @allowed_size = (
 			'35x35', '45x45', '55x55','70x35', '80x80', '90x45',
@@ -48,17 +51,28 @@ sub handler {
 	$r->send_http_header;
 	my $image = new Image::Magick;
 	$image->Read($file_path);
-	$height = $width*$image->Get('height')/$image->Get('width');
+	
+	if($type_resize eq "d"){
+		
+		$image->Resize( geometry => $size );
+		$image->Extent( Gravity => 'Center', geometry => $size, background => '#000' );
+	
+	}elsif($type_resize eq "i"){
 
-	$image->Set(Gravity => 'Center');
-	$image->Set(background => '#fff');
+		$height = $width*$image->Get('height')/$image->Get('width');
+
+		$image->Set(Gravity => 'North');
+		$image->Set(background => '#fff');
 
 
-	if($width != 0){
-		$image->Scale(width=>$width, height=>$height);
+		if($width != 0){
+			$image->Scale(width=>$width, height=>$height);
+		}
+		
 	}
+	
 	$image->Crop(geometry => $size);
-	$image->Strip; 
+	$image->Strip();
 	$image->Write($dest_file);
 	$r->sendfile($dest_file);
 	
